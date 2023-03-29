@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -44,7 +46,20 @@ public class Main {
         List<Map<String,String>> moviesList = parser.parse(body);
         
         // exibir e manipular os dados
+
+        StickerGenerator stickerGenerator = new StickerGenerator();
         for (Map<String,String> movie : moviesList) {
+
+            String urlImage = movie.get("image");
+            String title = movie.get("title");
+            InputStream inputStream = new URL(urlImage)
+                    .openStream();
+            String filename = title + ".png";
+
+
+            stickerGenerator.generate(inputStream, filename);
+
+
             System.out.println("\u001b[1mTítulo:\u001b[m " + movie.get("title"));
             System.out.println("\u001b[1mPoster:\u001b[m " + movie.get("image"));
             System.out.println(movie.get("imDbRating"));
