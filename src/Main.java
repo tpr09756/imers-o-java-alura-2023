@@ -46,7 +46,8 @@ public class Main {
         List<Map<String,String>> moviesList = parser.parse(body);
         
         // exibir e manipular os dados
-
+        File folder = new File("stickers/");
+        folder.mkdir();
         StickerGenerator stickerGenerator = new StickerGenerator();
         for (Map<String,String> movie : moviesList) {
 
@@ -54,7 +55,7 @@ public class Main {
             String title = movie.get("title");
             InputStream inputStream = new URL(urlImage)
                     .openStream();
-            String filename = title + ".png";
+            String filename = folder.getName() + title + ".png";
 
 
             stickerGenerator.generate(inputStream, filename);
