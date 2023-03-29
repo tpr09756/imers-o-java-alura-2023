@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URI;
@@ -49,22 +50,37 @@ public class Main {
         File folder = new File("stickers/");
         folder.mkdir();
         StickerGenerator stickerGenerator = new StickerGenerator();
-        for (Map<String,String> movie : moviesList) {
+
+        for (int index=0; index<5;index++) {
+            Map<String,String> movie = moviesList.get(index);
 
             String urlImage = movie.get("image");
+            String urlImageBigger = urlImage.replaceFirst("(@?\\.)([0-9A-Z,_]+).jpg$","$1.jpg");
             String title = movie.get("title");
-            InputStream inputStream = new URL(urlImage)
+            Double numberStarsDouble = Double.parseDouble(movie.get("imDbRating"));
+
+            String stickerText;
+            InputStream inputStreamStamp;
+            if (numberStarsDouble >= 8.0 ){
+                stickerText = "TOPZERA";
+                inputStreamStamp = new FileInputStream("resources/approved.png");
+            } else {
+                stickerText = "NOT APROVED";
+                inputStreamStamp = new FileInputStream("resources/disapproved.png");
+            }
+
+            InputStream inputStream = new URL(urlImageBigger)
                     .openStream();
-            String filename = folder.getName() + title + ".png";
+            String filename = title + ".png";
 
 
-            stickerGenerator.generate(inputStream, filename);
+            stickerGenerator.generate(inputStream, "stickers/" + filename, inputStreamStamp ,stickerText);
 
 
             System.out.println("\u001b[1mTítulo:\u001b[m " + movie.get("title"));
             System.out.println("\u001b[1mPoster:\u001b[m " + movie.get("image"));
             System.out.println(movie.get("imDbRating"));
-            Double numberStarsDouble = Double.parseDouble(movie.get("imDbRating"));
+
             int starNumber = numberStarsDouble.intValue();
             StringBuilder ratStar = new StringBuilder();
             for(int i = 1; i < starNumber; i++){
