@@ -2,12 +2,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.URI;
+
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -23,7 +20,7 @@ public class Main {
 
         //String imdbApiKey = System.getenv("IMDB_API_KEY");
         // Get the API key
-        String key = "";
+        /*String key = "";
         try {
             Scanner scanner = new Scanner(new File("resources/key.properties"));
             key = scanner.nextLine();
@@ -31,55 +28,42 @@ public class Main {
         } catch (FileNotFoundException e) {
             System.out.println("API key was not found");
             e.printStackTrace();
-        }
+        }*/
 
+        String urlApiNASA = API.NASA_APOD.getUrl();
         // conexão http aceder api IMDB https://imdb-api.com/en/API/Top250Movies
-        String url = "https://imdb-api.com/en/API/Top250Movies/" + key;
-        URI address = URI.create(url);
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder(address).GET().build();
-        HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-        String body = response.body();
+        String urlApiImdb = API.IMDB_TOP_MOVIES.getUrl();
+        ClientHttp clientHttp = new ClientHttp();
+        String json = clientHttp.getData(urlApiNASA);
         
 
         // extrair dados que nos interessam (título, imagem, rating)
-        JsonParser parser = new JsonParser();
-        List<Map<String,String>> moviesList = parser.parse(body);
-        
+        ContentExtractor extractor = new NasaContentExtractor();
+        List<Content> contentsList = extractor.contentExtractor(json);
+
         // exibir e manipular os dados
         File folder = new File("stickers/");
         folder.mkdir();
         StickerGenerator stickerGenerator = new StickerGenerator();
 
-        for (int index=0; index<5;index++) {
-            Map<String,String> movie = moviesList.get(index);
 
-            String urlImage = movie.get("image");
-            String urlImageBigger = urlImage.replaceFirst("(@?\\.)([0-9A-Z,_]+).jpg$","$1.jpg");
-            String title = movie.get("title");
-            Double numberStarsDouble = Double.parseDouble(movie.get("imDbRating"));
-
-            String stickerText;
-            InputStream inputStreamStamp;
-            if (numberStarsDouble >= 8.0 ){
-                stickerText = "TOPZERA";
-                inputStreamStamp = new FileInputStream("resources/approved.png");
-            } else {
-                stickerText = "NOT APROVED";
-                inputStreamStamp = new FileInputStream("resources/disapproved.png");
-            }
-
-            InputStream inputStream = new URL(urlImageBigger)
+        for (int index=0; index<2;index++) {
+            Content content = contentsList.get(index);
+            InputStream inputStream = new URL(content.urlImage())
                     .openStream();
-            String filename = title + ".png";
+            String filename = "stickers/" + content.title() + ".png";
 
 
-            stickerGenerator.generate(inputStream, "stickers/" + filename, inputStreamStamp ,stickerText);
+
+            stickerGenerator.generate(inputStream, filename, "TOPZERA");
 
 
-            System.out.println("\u001b[1mTítulo:\u001b[m " + movie.get("title"));
-            System.out.println("\u001b[1mPoster:\u001b[m " + movie.get("image"));
-            System.out.println(movie.get("imDbRating"));
+            //stickerGenerator.generate(inputStream, "stickers/" + filename, inputStreamStamp ,stickerText);
+
+
+            /*System.out.println("\u001b[1mTítulo:\u001b[m " + content.get("title"));
+            System.out.println("\u001b[1mPoster:\u001b[m " + content.get("image"));
+            System.out.println(content.get("imDbRating"));
 
             int starNumber = numberStarsDouble.intValue();
             StringBuilder ratStar = new StringBuilder();
@@ -90,7 +74,7 @@ public class Main {
                 ratStar.append("✩");
                 starNumber++;
             }
-            System.out.println(ratStar.toString());
+            System.out.println(ratStar.toString());*/
         }
     }
 }

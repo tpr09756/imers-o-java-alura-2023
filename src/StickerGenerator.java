@@ -12,10 +12,9 @@ import java.net.URL;
 
 public class StickerGenerator {
 
-    public void generate(InputStream inputStream, String fileName,InputStream inputStreamStamp, String text) throws Exception{
+    //public void generate(InputStream inputStream, String fileName,InputStream inputStreamStamp, String text) throws Exception{
+    public void generate(InputStream inputStream, String fileName, String text) throws Exception{
         // leitura da imagem
-        // InputStream inputStream = new FileInputStream("resources/filme_maior.jpg");
-        // InputStream inputStream = new URL("https://m.media-amazon.com/images/M/MV5BNDE3ODcxYzMtY2YzZC00NmNlLWJiNDMtZDViZWM2MzIxZDYwXkEyXkFqcGdeQXVyNjAwNDUxODI@.jpg").openStream();
         BufferedImage original = ImageIO.read(inputStream);
 
         // cria nova imagem em memória com transparência e tamanho novo
@@ -29,9 +28,12 @@ public class StickerGenerator {
         Graphics2D graphics = (Graphics2D) newImage.getGraphics();
         graphics.drawImage(original,0,0,null);
 
+        /*
         BufferedImage stamp = ImageIO.read(inputStreamStamp);
         int posStamp = height - stamp.getHeight();
         graphics.drawImage(stamp,0,posStamp,null );
+        */
+
         // configurar fonte
         Font font= new Font("Impact", Font.BOLD, 100);
         graphics.setColor(Color.YELLOW);
